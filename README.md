@@ -1,5 +1,7 @@
 # IntegrityREST
-Demo case how to use RESTeasy (http://resteasy.jboss.org/) together with PTC Integrity
+Demo case how to use RESTeasy (http://resteasy.jboss.org/) together with PTC Integrity.
+
+RESTeasy is part of a standard Integrity Server since 10.9 (perhaps 10.8 too). Just look for "resteasy" on the server under server/mks
 
 ##  Development environment
 - PTC Integrity LM 10.9 (also 11.0 should be fine)
