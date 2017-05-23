@@ -10,12 +10,12 @@
 package com.ptc.services.integrityrest;
 
 /**
- *
+ * Base Class, must exist for the Integrity JBoss version
  * @author veckardt
  */
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 @ApplicationPath("/rest")
-public class MyApplication extends Application {
+public class RESTApplication extends Application {
 }

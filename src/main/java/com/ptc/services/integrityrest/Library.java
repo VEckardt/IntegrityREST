@@ -18,6 +18,8 @@ import javax.ws.rs.QueryParam;
 
 /**
  *
+ * Try out only
+ * 
  * http://planet.jboss.org/post/seemingly_common_resteasy_error_and_a_solution
  * http://docs.jboss.org/resteasy/docs/3.1.2.Final/userguide/html_single/index.html#javax.ws.rs.core.Application
  * 

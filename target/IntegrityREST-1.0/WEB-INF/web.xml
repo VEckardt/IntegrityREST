@@ -27,7 +27,7 @@
         </servlet-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>com.ptc.services.integrityrest.MyApplication</param-value>
+            <param-value>com.ptc.services.integrityrest.RESTApplication</param-value>
         </init-param>
     </servlet>
     <servlet>
