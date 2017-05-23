@@ -5,7 +5,7 @@ Demo case how to use RESTeasy together with PTC Integrity
 - PTC Integrity LM 10.9 (also 11.0 should be fine)
 - Netbeans 7.4 (or 8)
 - Java 1.7 (or 1.8)
-- to be able to deploy directly into Integrity Server, I have installed a 5.4 JBoss server locally (Integrity uses an older one), and configured NetBeans with that. Then I could pick the target JBoss in NB, and was ready set up to start my Web Project
+- to be able to deploy directly into Integrity Server, I have installed a 5.4 JBoss server locally (Integrity uses an older one), and configured NetBeans with that. Then I could pick the target JBoss in NB, and was ready to start with my Web Project
 
 ## Deployment
 - the pom.xml section for the maven-war-plugin will automatically copy the "war" to my local server for testing
