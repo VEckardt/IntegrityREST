@@ -1,5 +1,5 @@
 # IntegrityREST
-Demo case how to use RESTeasy together with PTC Integrity
+Demo case how to use RESTeasy (http://resteasy.jboss.org/) together with PTC Integrity
 
 ##  Development environment
 - PTC Integrity LM 10.9 (also 11.0 should be fine)
