@@ -31,7 +31,7 @@ Demo case how to use RESTeasy together with PTC Integrity
 - com.ptc.services.restfulwebservices.tools - some tools needed mainly also for excel
 
 ## The Excel project inside
-I am used to work with the Integrity Gateway, and enhanced it with my own Custom Gateway functionality. This Excel part here included, is out of my own Custom Gateway project, and creates now formatted Excel files out of REST services. If you are interested I am pleased to hand over you more details in a web session. 
+I am used to work with the Integrity Gateway, and enhanced it with my own Custom Gateway functionality. This Excel part here included, is out of my own Custom Gateway project, and creates now formatted Excel files out of REST services. If you are interested I am pleased to handover more details in a web session. 
 
 ## Authorization
 - Is the "Basic"
