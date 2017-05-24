@@ -3,6 +3,8 @@ Demo case how to use RESTeasy (http://resteasy.jboss.org/) together with PTC Int
 
 RESTeasy is part of a standard Integrity Server since 10.9 (perhaps 10.8 too). Just look for "resteasy" on the server under server/mks
 
+![Services](IntegrityREST.PNG)
+
 ##  Development environment
 - PTC Integrity LM 10.9 (also 11.0 should be fine)
 - Netbeans 7.4 (or 8)
