@@ -17,6 +17,13 @@ public class NameValuePair {
 
     private String name;
     private String value;
+    
+    /**
+     * Empty Constructor
+     */
+    public NameValuePair() {
+
+    }    
 
     public NameValuePair(String name, String value) {
         this.name = name;

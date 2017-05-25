@@ -101,4 +101,10 @@ public class ItemResource {
 //        TodoDao.instance.getModel().put(item.getId(), item);
         return res;
     }
+
+    public String getId() {
+        return id;
+    }
+    
+    
 }

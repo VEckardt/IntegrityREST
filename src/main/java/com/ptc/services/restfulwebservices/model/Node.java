@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
 
 /**
@@ -22,14 +23,22 @@ import java.util.Locale;
  */
 public class Node {
 
+    public static String fieldList = "Category,Text,Text Key,Assigned User,Target Date,Expected Results";
+
     private String category;
     private String nodeid;
+    private String id;
     private String text;
     private String project;
     private String action;
     private String assignee;
     private Date targetdate;
     private String textkey;
+    // private final List<NameValuePair> values = new ArrayList<>();
+
+//    public List<NameValuePair> getValues() {
+//        return values;
+//    }
 
     /**
      * List of all Node Fields to consider
@@ -54,7 +63,6 @@ public class Node {
             return name;
         }
     };
-
     /**
      * Empty Constructor
      */
@@ -69,6 +77,13 @@ public class Node {
      */
     public Node(WorkItem wi) {
         this.nodeid = wi.getId();
+        this.id = wi.getId();
+        Iterator fields = wi.getFields();
+//        while (fields.hasNext()) {
+//            Field field = (Field) fields.next();
+//            values.add(new NameValuePair(field.getName(), field.getValueAsString()));
+//        }
+
         this.category = wi.getField(FieldList.Category.toString()).getValueAsString();
         this.text = wi.getField(FieldList.Text.toString()).getValueAsString();
         try {
@@ -126,19 +141,18 @@ public class Node {
     public void setAssignee(String assignee) {
         this.assignee = assignee;
     }
-
     public String getNodeid() {
         return nodeid;
     }
 
     public void setNodeid(String id) {
         this.nodeid = id;
+        this.id = id;
     }
 
     public Date getTargetdate() {
         return targetdate;
     }
-
     public void setTargetdate(String targetdate) throws ParseException {
         if (targetdate == null || targetdate.isEmpty()) {
             this.targetdate = null;
@@ -155,4 +169,9 @@ public class Node {
     public void setTextkey(String textkey) {
         this.textkey = textkey;
     }
+
+    public String getId() {
+        return id;
+    }
+    
 }

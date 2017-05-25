@@ -13,9 +13,7 @@ import com.mks.api.response.Field;
 import com.mks.api.response.WorkItem;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  *
@@ -30,9 +28,10 @@ public class Document {
     private String project;
     private String attendees;
     private Node[] nodelist;
-//    private final List<NameValuePair> values = new ArrayList<>();
+    // does not work yet
+    // private NameValuePair[] values;
 
-    public String fieldList = "Document Short Title,Description,Assigned User,Project";
+    public static String fieldList = "Document Short Title,Description,Assigned User,Project";
 
     public enum FieldList {
 
@@ -52,10 +51,10 @@ public class Document {
             return name;
         }
     };
-
-//    public List<NameValuePair> getValues() {
+//    public NameValuePair[] getValues() {
 //        return values;
 //    }
+
     public Document() {
     }
 
@@ -74,6 +73,7 @@ public class Document {
     public String getProject() {
         return project;
     }
+
     public Node[] getNodelist() {
         return nodelist;
     }
@@ -85,7 +85,6 @@ public class Document {
     public void setAssignedUser(String AssignedUser) {
         this.AssignedUser = AssignedUser;
     }
-
     public void setId(String id) {
         this.id = id;
     }
@@ -97,6 +96,10 @@ public class Document {
         this.nodelist = nodelist;
     }
 
+//    public void setValues(NameValuePair[] values) {
+//        this.values = values;
+//    }    
+    
     public String getDescription() {
         return Description;
     }
@@ -112,7 +115,6 @@ public class Document {
     public void setAttendees(String attendees) {
         this.attendees = attendees;
     }
-
     public void fillFieldValues(WorkItem wi) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Iterator docFields = wi.getFields();
         while (docFields.hasNext()) {
@@ -141,10 +143,11 @@ public class Document {
                         methodeName = fl.name();
                     }
                 }
-
-//                values.add(new NameValuePair(fldName, value));
                 Method setNameMethod = this.getClass().getMethod("set" + methodeName, String.class);
                 setNameMethod.invoke(this, value); // pass arg
+
+                // values.add(new NameValuePair(fldName, value));
+                // System.out.println(fldName + "=>" + value);
             }
         }
     }
