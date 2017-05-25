@@ -19,7 +19,6 @@ import com.mks.gateway.data.ExternalItem;
 import com.mks.gateway.mapper.ItemMapperException;
 import com.mks.gateway.mapper.UnsupportedPrototypeException;
 import com.ptc.services.restfulwebservices.api.IntegritySession;
-import static com.ptc.services.restfulwebservices.excel.ExcelExport.writeIIFtoDisk;
 import com.ptc.services.restfulwebservices.gateway.ItemMapperConfig;
 import java.util.Iterator;
 import java.util.List;

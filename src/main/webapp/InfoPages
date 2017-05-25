@@ -1,9 +1,17 @@
 
 
-http://swagger.io/swagger-ui/
+
 
 http://docs.jboss.org/resteasy/docs/3.1.2.Final/userguide/html_single/index.html#javax.ws.rs.core.Application
 
 https://developer.jboss.org/thread/248859
 
 http://www.mastertheboss.com/jboss-frameworks/resteasy/resteasy-tutorial-part-two-web-parameters
+
+https://www.java2novice.com/restful-web-services/resteasy-hello-world/
+
+https://www.java2novice.com/restful-web-services/xml-resteasy-jaxb/
+
+http://www.mastertheboss.com/jboss-frameworks/resteasy/resteasy-basic-authentication-example
+
+http://swagger.io/swagger-ui/

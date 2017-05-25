@@ -17,13 +17,11 @@ import com.mks.api.Option;
 import com.mks.api.Session;
 import com.mks.api.response.APIConnectionException;
 import com.mks.api.response.APIException;
-import com.mks.api.response.APIInternalError;
 import com.mks.api.response.ApplicationConnectionException;
 import com.mks.api.response.Field;
 import com.mks.api.response.Response;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
-import com.mks.api.util.ResponseUtil;
 import com.ptc.services.restfulwebservices.gateway.ItemMapperConfig;
 import com.ptc.services.restfulwebservices.model.Document;
 import com.ptc.services.restfulwebservices.model.Item;
@@ -33,12 +31,10 @@ import static com.ptc.services.restfulwebservices.tools.LogAndDebug.log;
 import java.io.IOException;
 import static java.lang.System.out;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -47,7 +43,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
-import mks.ci.api.CISDMIssue.ModelType;
 import org.xml.sax.SAXException;
 
 /**
@@ -55,35 +50,35 @@ import org.xml.sax.SAXException;
  * @author veckardt
  */
 public class IntegritySession {
-
+    
     private static IntegrationPoint integrationPoint = null;
     private static Session apiSession = null;
     private static ConnectionDetails connection = null;
     private static Map<String, String> allUsers = new HashMap<>();
     private static ItemMapperConfig itemMapperConfig = null;
-
+    
     public static void initGatewayConfig(String gatewayConfig) throws ParserConfigurationException, SAXException, IOException {
         // if (itemMapperConfig == null) {
         itemMapperConfig = new ItemMapperConfig(gatewayConfig);
         // }
     }
-
+    
     public static ItemMapperConfig getItemMapperConfig() {
         return itemMapperConfig;
     }
-
+    
     public static Properties getConfigProperties() {
         return itemMapperConfig.getProperties();
     }
-
+    
     public static String getProperty(String config) {
         return itemMapperConfig.getProperty(config);
     }
-
+    
     public static String getProperty(String config, String defaultValue) {
         return itemMapperConfig.getProperty(config, defaultValue);
     }
-
+    
     public static void connect() throws APIException, IOException {
         connection = new ConnectionDetails(SecurityInterceptor.username, SecurityInterceptor.password);
         IntegrationPointFactory ipf = IntegrationPointFactory.getInstance();
@@ -95,7 +90,7 @@ public class IntegritySession {
             // apiSession = integrationPoint.createSession(connection.getUser(), connection.getPassword());
             apiSession.setDefaultUsername(connection.getUser());
             apiSession.setDefaultPassword(connection.getPassword());
-
+            
             out.println(connection.getLoginInfo());
             // System.out.println("REST: Current Dir: " + System.getProperty("user.dir"));
 
@@ -112,7 +107,7 @@ public class IntegritySession {
             throw new APIException(apiEx);
         }
     }
-
+    
     public static Response execute(Command cmd) throws APIException {
         try {
             long timestamp = System.currentTimeMillis();
@@ -132,13 +127,12 @@ public class IntegritySession {
             timestamp = System.currentTimeMillis() - timestamp;
             System.out.println("REST-API: " + response.getCommandString() + " [" + timestamp + "ms]");
             return response;
-        } catch (APIInternalError e) {
-            out.println("REST-API: " + e.getMessage()
-            );
-            throw new APIInternalError(e);
+        } catch (APIException e) {
+            out.println("REST-API: APIInternalError - " + e.getMessage());
+            throw new APIException(e);
         }
     }
-
+    
     public static void release() throws APIException, IOException {
         if (apiSession != null) {
             apiSession.release();
@@ -147,7 +141,7 @@ public class IntegritySession {
             integrationPoint.release();
         }
     }
-
+    
     public static List<Item> getAllItems(String queryName) throws APIException {
         List<Item> list = new ArrayList<>();
         try {
@@ -171,9 +165,9 @@ public class IntegritySession {
         }
         return list;
     }
-
+    
     public static void getAllUsers() throws APIException, IOException {
-
+        
         try {
             connect();
             Command cmd = new Command(Command.IM, "users");
@@ -194,7 +188,7 @@ public class IntegritySession {
         }
         // return list;
     }
-
+    
     public static Item getItem(String id) throws APIException {
         WorkItem wi = null;
         try {
@@ -213,32 +207,52 @@ public class IntegritySession {
         }
         return new Item(wi);
     }
-
+    
+    public static void deleteItem(String id) throws APIException {
+        try {
+            connect();
+            Command cmd = new Command(Command.IM, "deleteissue");
+            cmd.addOption(new Option("noconfirm"));
+            cmd.addSelection(id);
+            Response response = execute(cmd);
+            release();
+        } catch (APIException ex) {
+            Logger.getLogger(IntegritySession.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            throw new APIException(ex);
+        } catch (IOException ex) {
+            Logger.getLogger(IntegritySession.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            throw new APIException(ex);
+        }
+    }    
+    
     public static Document getDocument(String id) throws APIException, IOException, NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Document document = new Document();
         List<Node> nodeList = new ArrayList<>();
-
+        
         connect();
         Command cmd = new Command(Command.IM, "viewsegment");
-
+        
         String fieldList = "";
-        for (Document.FieldList fl : Document.FieldList.values()) {
-            fieldList += (fieldList.isEmpty() ? "" : ",") + fl.toString();
-        }
-        for (Node.FieldList fl : Node.FieldList.values()) {
+        // for (Document.FieldList fl : Document.FieldList.values()) {
+        for (String fl : Document.fieldList.split(",")) {
             fieldList += (fieldList.isEmpty() ? "" : ",") + fl.toString();
         }
 
+        // for (Node.FieldList fl : Node.FieldList.values()) {
+        for (String fl : Node.fieldList.split(",")) {
+            fieldList += (fieldList.isEmpty() ? "" : ",") + fl.toString();
+        }
+        
         cmd.addOption(new Option("fields", fieldList));
         cmd.addSelection(id);
         Response response = execute(cmd);
         document.setId(id);
-
+        
         WorkItemIterator wii = response.getWorkItems();
         WorkItem wiDoc = wii.next();
-
+        
         document.fillFieldValues(wiDoc);
-
+        
         while (wii.hasNext()) {
             WorkItem wi = wii.next();
             nodeList.add(new Node(wi));
@@ -249,7 +263,7 @@ public class IntegritySession {
         document.setNodelist(nodeArray);
         return document;
     }
-
+    
     public static Node getNode(String id) throws APIException {
         WorkItem wi = null;
         try {
@@ -259,18 +273,25 @@ public class IntegritySession {
             Response response = execute(cmd);
             wi = response.getWorkItem(id);
             release();
+            
         } catch (APIException ex) {
-            Logger.getLogger(IntegritySession.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(IntegritySession.class
+                    .getName()).log(Level.SEVERE, ex.getMessage(), ex);
             throw new APIException(ex);
         } catch (IOException ex) {
-            Logger.getLogger(IntegritySession.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(IntegritySession.class
+                    .getName()).log(Level.SEVERE, ex.getMessage(), ex);
             throw new APIException(ex);
         }
         return new Node(wi);
     }
-
+    
     public static String putDocument(String[] typeDef, Document document) throws APIException, IOException {
         connect();
+        
+        System.out.println(document.getId());
+        System.out.println(document.getNodelist().length);
+        // System.out.println(document.getValues().length);
 
         String id;
         Command cmd;
@@ -283,21 +304,27 @@ public class IntegritySession {
             cmd.addSelection(document.getId());
         }
 
+        // System.out.println("Count Nodes = " + document.getNodelist().length);
+        // System.out.println("Count Nodes = " + document.getValues().length);
+        // for (NameValuePair fvp : document.getValues()) {
+        //     System.out.println(fvp.getName() + "=" + fvp.getValue());
+        //     cmd.addOption(new Option("field", fvp.getName() + "=" + fvp.getValue()));
+        // }
         cmd.addOption(new Option("field", Document.FieldList.Project.toString() + "=" + document.getProject()));
         cmd.addOption(new Option("field", Document.FieldList.Summary.toString() + "=" + document.getSummary()));
         cmd.addOption(new Option("field", Document.FieldList.Description.toString() + "=" + document.getDescription()));
         cmd.addOption(new Option("field", Document.FieldList.AssignedUser.toString() + "=" + parseUser(document.getAssignedUser())));
-
         Response response = execute(cmd);
+        
         if (isNew) {
             id = response.getResult().getPrimaryValue().getId();
             document.setId(id);
         }
-
+        
         for (Node node : document.getNodelist()) {
             putNode(typeDef[1], document.getId(), node);
         }
-
+        
         release();
         return document.getId();
     }
@@ -322,7 +349,7 @@ public class IntegritySession {
         }
         return username;
     }
-
+    
     public static String putNode(String type, String parent, Node node) throws APIException {
         Boolean isNew = node.getNodeid() == null || node.getNodeid().replaceAll("-", "").isEmpty();
         try {
@@ -335,6 +362,10 @@ public class IntegritySession {
                 cmd = new Command(Command.IM, "editissue");
                 cmd.addSelection(node.getNodeid());
             }
+
+//            for (NameValuePair fvp : node.getValues()) {
+//                cmd.addOption(new Option("field", fvp.getName() + "=" + fvp.getValue()));
+//            }
             cmd.addOption(new Option("field", Node.FieldList.Text.toString() + "=" + node.getText()));
             
             cmd.addOption(new Option("field", Node.FieldList.Category.toString() + "=" + node.getCategory()));
@@ -346,7 +377,6 @@ public class IntegritySession {
                 DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                 cmd.addOption(new Option("field", Node.FieldList.TargetDate.toString() + "=" + dateFormat.format(node.getTargetdate())));
             }
-
             Response response = execute(cmd);
             if (isNew) {
                 String id = response.getResult().getPrimaryValue().getId();
@@ -354,12 +384,14 @@ public class IntegritySession {
             }
         } catch (APIException ex) {
             ExceptionHandler exh = new ExceptionHandler(ex);
-            Logger.getLogger(IntegritySession.class.getName()).log(Level.SEVERE, exh.getMessage(), exh);
+            Logger
+                    .getLogger(IntegritySession.class
+                            .getName()).log(Level.SEVERE, exh.getMessage(), exh);
             throw new APIException(ex);
         }
         return node.getNodeid();
     }
-
+    
     public static String putItem(Item item) throws APIException {
         String id = "";
         try {
@@ -372,11 +404,14 @@ public class IntegritySession {
             Response response = execute(cmd);
             id = response.getResult().getPrimaryValue().getId();
             release();
+            
         } catch (APIException ex) {
-            Logger.getLogger(IntegritySession.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(IntegritySession.class
+                    .getName()).log(Level.SEVERE, ex.getMessage(), ex);
             throw new APIException(ex);
         } catch (IOException ex) {
-            Logger.getLogger(IntegritySession.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(IntegritySession.class
+                    .getName()).log(Level.SEVERE, ex.getMessage(), ex);
             throw new APIException(ex);
         }
         return id;

@@ -47,30 +47,30 @@ public class DefectsResourceTest {
     /**
      * Test of getDefectsBrowser method, of class DefectsResource.
      */
-    @Test
-    public void testGetDefectsBrowser() throws Exception {
-        System.out.println("getDefectsBrowser");
-        DefectsResource instance = new DefectsResource();
-        // List<Item> expResult = null;
-        Response result = instance.getDefectsBrowser();
-
-        assertTrue("Error, result is too high", result.getStatus() == 200);
-    }
+//    @Test
+//    public void testGetDefectsBrowser() throws Exception {
+//        System.out.println("getDefectsBrowser");
+//        DefectsResource instance = new DefectsResource();
+//        // List<Item> expResult = null;
+//        Response result = instance.getDefectsBrowser();
+//
+//        assertTrue("Error, result is too high", result.getStatus() == 200);
+//    }
 
     /**
      * Test of getDefects method, of class DefectsResource.
      */
-    @Test
-    public void testGetDefects() throws Exception {
-        System.out.println("getDefects");
-        DefectsResource instance = new DefectsResource();
-        // List<Item> expResult = null;
-        Response result = instance.getDefects();
-        // assertEquals(expResult, result);
-        assertTrue("Error, result is too high", result.getStatus() == 200);
-        // TODO review the generated test code and remove the default call to fail.
-        // fail("The test case is a prototype.");
-    }
+//    @Test
+//    public void testGetDefects() throws Exception {
+//        System.out.println("getDefects");
+//        DefectsResource instance = new DefectsResource();
+//        // List<Item> expResult = null;
+//        Response result = instance.getDefects();
+//        // assertEquals(expResult, result);
+//        assertTrue("Error, result is too high", result.getStatus() == 200);
+//        // TODO review the generated test code and remove the default call to fail.
+//        // fail("The test case is a prototype.");
+//    }
 
     /**
      * Test of getCount method, of class DefectsResource.
@@ -135,14 +135,14 @@ public class DefectsResourceTest {
     /**
      * Test of getDefect method, of class DefectsResource.
      */
-    @org.junit.Test
-    public void testDeleteDefect() {
-        System.out.println("deleteDefect");
-        String id = "621";
-        DefectsResource instance = new DefectsResource();
-        String expResult = "Item 621 deleted.";
-        Response result = instance.deleteDefect(id);
-        assertEquals(expResult, ((String) result.getEntity()));
-    }
+//    @org.junit.Test
+//    public void testDeleteDefect() {
+//        System.out.println("deleteDefect");
+//        String id = "621";
+//        DefectsResource instance = new DefectsResource();
+//        String expResult = "Item 621 deleted.";
+//        Response result = instance.deleteDefect(id);
+//        assertEquals(expResult, ((String) result.getEntity()));
+//    }
 
 }
