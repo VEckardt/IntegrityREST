@@ -88,7 +88,23 @@
                     <warName>${name}</warName>
                     <outputDirectory>D:\IntegrityProgram\IntegrityServer10.9\server\mks\deploy</outputDirectory>
                 </configuration>
-            </plugin>            
+            </plugin>
+            <!--            <plugin>
+                <groupId>com.sebastian-daschner</groupId>
+                <artifactId>jaxrs-analyzer-maven-plugin</artifactId>
+                <version>0.14</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>analyze-jaxrs</goal>
+                        </goals>
+                        <configuration>
+                            <backend>swagger</backend>
+                            <deployedDomain>example.com</deployedDomain>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>          -->
         </plugins>
     </build>
 </project>

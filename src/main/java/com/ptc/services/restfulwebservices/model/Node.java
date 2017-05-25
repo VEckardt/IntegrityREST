@@ -9,7 +9,6 @@
  */
 package com.ptc.services.restfulwebservices.model;
 
-import com.ptc.services.restfulwebservices.*;
 import com.mks.api.response.WorkItem;
 import java.text.DateFormat;
 import java.text.ParseException;

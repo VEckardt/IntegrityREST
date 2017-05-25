@@ -20,17 +20,15 @@ import com.mks.api.response.APIException;
 import com.ptc.services.restfulwebservices.api.IntegritySession;
 import com.ptc.services.restfulwebservices.model.Document;
 import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.InvocationTargetException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response;
 
 @Path("/mms")
 public class MeetingMinutes {
@@ -39,28 +37,45 @@ public class MeetingMinutes {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
 
-    public Document newMMs(Document document
-    ) throws IOException, APIException {
+    public Response newMMs(Document document)
+            throws IOException, APIException, NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, Exception {
         IntegritySession.getAllUsers();
 
-        String itemID = IntegritySession.putDocument(TypeDef, document);
-        return IntegritySession.getDocument(itemID);
+        try {
+            String itemID = IntegritySession.putDocument(TypeDef, document);
+            Document out = IntegritySession.getDocument(itemID);
+            return Response.ok().entity(out).build();
+        } catch (APIException ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Error:<br>" + ex.getMessage().replaceAll("\\. ", ". <br>")).build();
+        }
     }
 
-    @Context
-    UriInfo uriInfo;
-    @Context
-    Request request;
-
+//    @Context
+//    UriInfo uriInfo;
+//    @Context
+//    Request request;
+//
+//    @GET
+//    @Produces({MediaType.TEXT_HTML})
+//    public void index(
+//            @Context HttpServletRequest request,
+//            @Context HttpServletResponse servletResponse) throws IOException {
+//        // System.out.println("Forwarding to: " + request.getContextPath() + "/index.jsp");
+//        // servletResponse.sendRedirect(request.getContextPath() + "/index.jsp");
+//    }
     @GET
-    @Produces({MediaType.TEXT_HTML})
-    public void index(
-            @Context HttpServletRequest request,
-            @Context HttpServletResponse servletResponse) throws IOException {
-        System.out.println("Forwarding to: " + request.getContextPath() + "/index.jsp");
-        servletResponse.sendRedirect(request.getContextPath() + "/index.jsp");
-    }
+    @Path("{itemID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDocument(@PathParam("itemID") String itemID) throws APIException, IOException, NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
+        try {
+            Document document = IntegritySession.getDocument(itemID);
+
+            return Response.ok().entity(document).build();
+        } catch (APIException ex) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ex.getMessage()).build();
+        }
+    }
 }

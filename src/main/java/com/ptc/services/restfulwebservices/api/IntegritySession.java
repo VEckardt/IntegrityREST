@@ -23,6 +23,7 @@ import com.mks.api.response.Field;
 import com.mks.api.response.Response;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
+import com.mks.api.util.ResponseUtil;
 import com.ptc.services.restfulwebservices.gateway.ItemMapperConfig;
 import com.ptc.services.restfulwebservices.model.Document;
 import com.ptc.services.restfulwebservices.model.Item;
@@ -31,10 +32,13 @@ import com.ptc.services.restfulwebservices.security.SecurityInterceptor;
 import static com.ptc.services.restfulwebservices.tools.LogAndDebug.log;
 import java.io.IOException;
 import static java.lang.System.out;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -43,6 +47,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
+import mks.ci.api.CISDMIssue.ModelType;
 import org.xml.sax.SAXException;
 
 /**
@@ -59,7 +64,7 @@ public class IntegritySession {
 
     public static void initGatewayConfig(String gatewayConfig) throws ParserConfigurationException, SAXException, IOException {
         // if (itemMapperConfig == null) {
-            itemMapperConfig = new ItemMapperConfig(gatewayConfig);
+        itemMapperConfig = new ItemMapperConfig(gatewayConfig);
         // }
     }
 
@@ -209,7 +214,7 @@ public class IntegritySession {
         return new Item(wi);
     }
 
-    public static Document getDocument(String id) throws APIException, IOException {
+    public static Document getDocument(String id) throws APIException, IOException, NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Document document = new Document();
         List<Node> nodeList = new ArrayList<>();
 
@@ -227,13 +232,13 @@ public class IntegritySession {
         cmd.addOption(new Option("fields", fieldList));
         cmd.addSelection(id);
         Response response = execute(cmd);
-        WorkItem wiDoc = response.getWorkItem(id);
         document.setId(id);
-        document.setProject(wiDoc.getField(Document.FieldList.Project.toString()).getValueAsString());
-        document.setSummary(wiDoc.getField(Document.FieldList.Summary.toString()).getValueAsString());
-        document.setAssignedUser(wiDoc.getField(Document.FieldList.AssignedUser.toString()).getValueAsString());
+
         WorkItemIterator wii = response.getWorkItems();
-        wii.next();
+        WorkItem wiDoc = wii.next();
+
+        document.fillFieldValues(wiDoc);
+
         while (wii.hasNext()) {
             WorkItem wi = wii.next();
             nodeList.add(new Node(wi));
@@ -277,6 +282,7 @@ public class IntegritySession {
             cmd = new Command(Command.IM, "editissue");
             cmd.addSelection(document.getId());
         }
+
         cmd.addOption(new Option("field", Document.FieldList.Project.toString() + "=" + document.getProject()));
         cmd.addOption(new Option("field", Document.FieldList.Summary.toString() + "=" + document.getSummary()));
         cmd.addOption(new Option("field", Document.FieldList.Description.toString() + "=" + document.getDescription()));
@@ -303,7 +309,7 @@ public class IntegritySession {
      * @return the found/not-found user
      */
     public static String parseUser(String username) {
-        if (username.isEmpty()) {
+        if (username == null || username.isEmpty()) {
             return "";
         }
         if (allUsers.containsKey(username.toLowerCase())) {
@@ -330,6 +336,7 @@ public class IntegritySession {
                 cmd.addSelection(node.getNodeid());
             }
             cmd.addOption(new Option("field", Node.FieldList.Text.toString() + "=" + node.getText()));
+            
             cmd.addOption(new Option("field", Node.FieldList.Category.toString() + "=" + node.getCategory()));
             cmd.addOption(new Option("field", Node.FieldList.TextKey.toString() + "=" + node.getTextkey()));
             cmd.addOption(new Option("field", Node.FieldList.AssignedUser.toString() + "=" + parseUser(node.getAssignee())));

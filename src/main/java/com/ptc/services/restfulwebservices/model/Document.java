@@ -9,6 +9,14 @@
  */
 package com.ptc.services.restfulwebservices.model;
 
+import com.mks.api.response.Field;
+import com.mks.api.response.WorkItem;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  *
  * @author veckardt
@@ -22,6 +30,9 @@ public class Document {
     private String project;
     private String attendees;
     private Node[] nodelist;
+//    private final List<NameValuePair> values = new ArrayList<>();
+
+    public String fieldList = "Document Short Title,Description,Assigned User,Project";
 
     public enum FieldList {
 
@@ -42,6 +53,9 @@ public class Document {
         }
     };
 
+//    public List<NameValuePair> getValues() {
+//        return values;
+//    }
     public Document() {
     }
 
@@ -60,7 +74,6 @@ public class Document {
     public String getProject() {
         return project;
     }
-
     public Node[] getNodelist() {
         return nodelist;
     }
@@ -80,7 +93,6 @@ public class Document {
     public void setProject(String project) {
         this.project = project;
     }
-
     public void setNodelist(Node[] nodelist) {
         this.nodelist = nodelist;
     }
@@ -101,4 +113,39 @@ public class Document {
         this.attendees = attendees;
     }
 
+    public void fillFieldValues(WorkItem wi) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        Iterator docFields = wi.getFields();
+        while (docFields.hasNext()) {
+            Field fld = (Field) docFields.next();
+            // out.println(fld.getName() + "" + fld.getModelType().toString());
+
+            String fldName = fld.getName();
+            if (fld.getDataType() != null) {
+                String value = null;
+                if (fld.getDataType().endsWith("String")) {
+                    value = fld.getValueAsString();
+                } else if (fld.getDataType().endsWith("Date")) {
+                    value = fld.getDateTime().toString();
+                } else if (fld.getDataType().endsWith("Item")) {
+                    com.mks.api.response.Item item = fld.getItem();
+                    String modelType = item.getModelType();
+                    if (modelType.endsWith("User")) {
+                        value = fld.getItem().getId();
+                    }
+                } else {
+                    value = fld.getValueAsString();
+                }
+                String methodeName = "";
+                for (Document.FieldList fl : Document.FieldList.values()) {
+                    if (fl.toString().equals(fldName)) {
+                        methodeName = fl.name();
+                    }
+                }
+
+//                values.add(new NameValuePair(fldName, value));
+                Method setNameMethod = this.getClass().getMethod("set" + methodeName, String.class);
+                setNameMethod.invoke(this, value); // pass arg
+            }
+        }
+    }
 }
