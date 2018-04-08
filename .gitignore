@@ -1,3 +1,9 @@
 *.class
 *.jar
 target/
+target/classes/com/ptc/services/integrityrest/*.class
+target/classes/com/ptc/services/restfulwebservices/api/*.class
+target/classes/com/ptc/services/restfulwebservices/api/Config.class
+target/classes/com/ptc/services/restfulwebservices/DefectsResource.class
+target/classes/com/ptc/services/restfulwebservices/model/Node.class
+target/classes/com/ptc/services/restfulwebservices/model/Node.class
