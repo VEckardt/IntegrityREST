@@ -644,6 +644,45 @@ public class IntegritySession {
         mainObj.put("members", jsonArr);
         return mainObj;
     }
+    
+    /**
+     * Returns the users from a particular group with AA command (W&D)
+     *
+     * @param GroupName
+     * @return
+     * @throws JSONException
+     * @throws APIException
+     */
+    public JSONObject getMKSDomainGroups() throws JSONException, APIException {
+        JSONArray jsonArr = new JSONArray();
+        try {
+            // connect();
+            // aa groups 
+            Command cmd = new Command(Command.AA, "groups");
+            Response response = execute(cmd);
+            ResponseUtil.printResponse(response, 1, System.out);
+            WorkItemIterator groups = response.getWorkItems();
+            while (groups.hasNext()) {
+                Item item = (Item) groups.next();
+                JSONObject jsonObj = new JSONObject();
+                jsonObj.put("id", item.getId());
+                jsonObj.put("modeltype", item.getModelType());
+                jsonArr.put(jsonObj);
+            }
+            // release();
+        } catch (APIException ex) {
+            ExceptionHandler eh = new ExceptionHandler(ex);
+            Logger.getLogger(IntegritySession.class.getName()).log(Level.SEVERE, eh.getMessage(), eh);
+            throw new APIException(ex);
+        }
+        JSONObject mainObj = new JSONObject();
+        mainObj.put("hostname", connection.getHostname());
+        mainObj.put("port", connection.getPort());
+        mainObj.put("user", connection.getUser());
+        mainObj.put("group", "");
+        mainObj.put("members", jsonArr);
+        return mainObj;
+    }    
 
     private String getFullName(String userName) throws APIException {
         // im users --fields=name,fullname

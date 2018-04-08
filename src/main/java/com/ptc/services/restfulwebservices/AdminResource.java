@@ -18,7 +18,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,4 +46,23 @@ public class AdminResource {
             return Response.status(Response.Status.NOT_FOUND).entity(ex.getMessage()).build();
         }
     }
+    
+    @GET
+    @Path("/groups")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getGroups() throws IOException, JSONException, APIException {
+        IntegritySession is = null;
+        try {
+            is = new IntegritySession();
+            JSONObject groups = is.getMKSDomainGroups();
+            is.release();
+
+            return Response.ok().entity(groups.toString()).build();
+        } catch (APIException ex) {
+            if (is != null) {
+                is.release();
+            }
+            return Response.status(Response.Status.NOT_FOUND).entity(ex.getMessage()).build();
+        }
+    }    
 }

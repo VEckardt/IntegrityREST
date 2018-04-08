@@ -10,13 +10,13 @@
 package com.ptc.services.restfulwebservices;
 
 import com.ptc.services.restfulwebservices.model.Item;
+import com.ptc.services.restfulwebservices.model.Item2;
 import com.ptc.services.restfulwebservices.model.ItemResource;
 import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
@@ -93,7 +93,8 @@ public class DefectsResourceTest {
     @org.junit.Test
     public void testNewDefect() throws Exception {
         System.out.println("newDefect");
-        Item item = new Item("1", "Summary", "", "Description", "/Projects");
+        // public Item2(String id, String type, String summary, String state, String description, String project) {
+        Item2 item = new Item2("1", "Defect", "Summary", "", "Description", "/Projects");
         DefectsResource instance = new DefectsResource();
         Response result = instance.newDefect(item);
         System.out.println("newDefect: " + ((Item) result.getEntity()).getId());
