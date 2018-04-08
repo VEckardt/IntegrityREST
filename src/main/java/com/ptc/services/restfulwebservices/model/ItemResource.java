@@ -13,9 +13,9 @@ package com.ptc.services.restfulwebservices.model;
  *
  * @author veckardt
  */
-
 import com.mks.api.response.APIException;
 import com.ptc.services.restfulwebservices.api.IntegritySession;
+import java.io.IOException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -46,8 +46,10 @@ public class ItemResource {
     //Application integration
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Item getItem() throws APIException {
-        Item item = IntegritySession.getItem(id);
+    public Item2 getItem() throws APIException, IOException {
+        IntegritySession is = new IntegritySession();
+        Item2 item = is.getItem(id);
+        is.release();
         if (item == null) {
             throw new RuntimeException("Get: Item with " + id + " not found");
         }
@@ -57,8 +59,10 @@ public class ItemResource {
     // for the browser
     @GET
     @Produces(MediaType.TEXT_XML)
-    public Item getItemHTML() throws APIException {
-        Item item = IntegritySession.getItem(id); // TodoDao.instance.getModel().get(id);
+    public Item2 getItemHTML() throws APIException, IOException {
+        IntegritySession is = new IntegritySession();
+        Item2 item = is.getItem(id); // TodoDao.instance.getModel().get(id);
+        is.release();
         if (item == null) {
             throw new RuntimeException("Get: Item with " + id + " not found");
         }
@@ -67,32 +71,34 @@ public class ItemResource {
 
     @PUT
     @Consumes(MediaType.APPLICATION_XML)
-    public Response putDefect(JAXBElement<Item> item) throws APIException {
-        Item c = item.getValue();
+    public Response putDefect(JAXBElement<Item2> item) throws APIException, IOException {
+        Item2 c = item.getValue();
         return putAndGetResponse(c);
     }
 
     @DELETE
     public void deleteDefect() {
-        Item c = null; //; TodoDao.instance.getModel().remove(id);
+        Item2 c = null; //; TodoDao.instance.getModel().remove(id);
         if (c == null) {
             throw new RuntimeException("Delete: Item with " + id + " not found");
         }
     }
 
-    private Response putAndGetResponse(Item item) throws APIException {
+    private Response putAndGetResponse(Item2 item) throws APIException, IOException {
         Response res;
+        IntegritySession is = new IntegritySession();
         try {
-            IntegritySession.getItem(item.getId());
+            is.getItem(item.getId());
             // found
             res = Response.noContent().build();
         } catch (APIException ex) {
             // not found
+
             res = Response.created(uriInfo.getAbsolutePath()).build();
         }
 
-        IntegritySession.putItem(item);
-
+        is.putItem(item);
+        is.release();
 //        if (TodoDao.instance.getModel().containsKey(item.getId())) {
 //            res = Response.noContent().build();
 //        } else {
@@ -105,6 +111,5 @@ public class ItemResource {
     public String getId() {
         return id;
     }
-    
-    
+
 }

@@ -21,9 +21,6 @@ import com.mks.gateway.mapper.UnsupportedPrototypeException;
 //import com.ptc.services.common.gateway.ItemHandler;
 import com.ptc.services.restfulwebservices.api.Config;
 import com.ptc.services.restfulwebservices.api.IntegritySession;
-import static com.ptc.services.restfulwebservices.api.IntegritySession.getConfigProperties;
-import static com.ptc.services.restfulwebservices.api.IntegritySession.getProperty;
-import static com.ptc.services.restfulwebservices.api.IntegritySession.initGatewayConfig;
 import static com.ptc.services.restfulwebservices.excel.ReportDefectLeakage.handleDefectLeakage;
 import static com.ptc.services.restfulwebservices.excel.ReportMainSubIssue.handleMainSubIssues;
 import static com.ptc.services.restfulwebservices.excel.ReportTestResultHistory.handleTestResultHistory;
@@ -100,11 +97,16 @@ public class ExcelExport {
     public static File loadItemDataAndGenerateExcelFile(String itemIDs, String gatewayConfig) throws Exception {
         File tempFile = new File(tempFileName);
         List<ExternalItem> gatewayItems = new ArrayList<>();
-
+        IntegritySession is = null;
         try {
-            transformFromItems(gatewayItems, itemIDs, tempFile, null, gatewayConfig);
+            is = new IntegritySession();
+            transformFromItems(is, gatewayItems, itemIDs, tempFile, null, gatewayConfig);
+            is.release();
             return tempFile;
         } catch (ParserConfigurationException | SAXException | IOException | APIException ex) {
+            if (is != null) {
+                is.release();
+            }
             Logger.getLogger(ExcelExport.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             throw new Exception(ex);
         }
@@ -126,11 +128,11 @@ public class ExcelExport {
      * @throws ItemMapperException
      * @throws Exception
      */
-    public static void transformFromItems(List<ExternalItem> gatewayItems, String itemIDs,
+    public static void transformFromItems(IntegritySession is, List<ExternalItem> gatewayItems, String itemIDs,
             File destinationFile, Map<String, String> additionalFields, String gatewayConfig) throws APIException, IOException, ParserConfigurationException, SAXException, ItemMapperException, Exception {
         try {
-            initGatewayConfig(gatewayConfig);
-            templateFile = getProperty("template");
+            is.initGatewayConfig(gatewayConfig);
+            templateFile = is.getProperty("template");
 
             // print intro and versioning information
             log("* ********************************************************************* *", 1);
@@ -150,37 +152,33 @@ public class ExcelExport {
             // mappingConfig = null; // getMappingConfiguration();
             // iGatewayDriver = null;// getDriver();
             // individual properties
-            lockPassword = getProperty("lockPassword", lockPassword);
+            lockPassword = is.getProperty("lockPassword", lockPassword);
 
             // Retrieve Gateway Config Properties
             log("Listing local configuration ...", 1);
             // List all Gateway Config Properties
-            for (Object key : getConfigProperties().entrySet()) {
+            for (Object key : is.getConfigProperties().entrySet()) {
                 log("  ConfigProperty: " + key.toString(), 2);
             }
             // Read Configuration Details
             log("End of Listing local configuration.", 1);
             // listMappingConfig(mappingConfig, "default");
 
-            String exportTypeString = getProperty("type", "");
+            String exportTypeString = is.getProperty("type", "");
             // exportExcel(gatewayItems, destinationFile, getConfigProperties(), asOfDate, );
             ExportType exportType = ExportType.valueOf(exportTypeString);
-            Boolean lockSheet = getProperty("lockSheet", "false").equals("true");
-
-            IntegritySession.connect();
+            Boolean lockSheet = is.getProperty("lockSheet", "false").equals("true");
 
             if (exportType.equals(ExportType.DefectLeakage)) {
-                handleDefectLeakage(gatewayItems, itemIDs);
+                handleDefectLeakage(is, gatewayItems, itemIDs);
             } else if (exportType.equals(ExportType.MainSubIssue)) {
-                handleMainSubIssues(gatewayItems, itemIDs, IntegritySession.getItemMapperConfig());
+                handleMainSubIssues(is, gatewayItems, itemIDs, is.getItemMapperConfig());
             } else if (exportType.equals(ExportType.TestResultHistory)) {
-                gatewayItems.add(getFirstItem(itemIDs));
-                ReportTestResultHistory.initDoc(gatewayItems.get(0), itemIDs);
-                handleTestResultHistory(gatewayItems.get(0));
+                gatewayItems.add(getFirstItem(is, itemIDs));
+                handleTestResultHistory(is, gatewayItems.get(0), itemIDs);
             }
 
             // now, that we have all data, we can close the session
-            IntegritySession.release();
             // adding date field
             Date asOfDate = (Date) gatewayItems.get(0).getAttributeValue(ExternalItem.Attribute.ASOF_DATE);
             gatewayItems.get(0).add("Export Date", Config.dfDayTimeShort.format(new Date()));
@@ -189,7 +187,7 @@ public class ExcelExport {
             writeIIFtoDisk(gatewayItems, 5);
 
             log("before writeXLSwithData ..", 2);
-            writeXLSwithData(gatewayItems.get(0), templateFile, destinationFile, exportType, lockSheet);
+            writeXLSwithData(is, gatewayItems.get(0), templateFile, destinationFile, exportType, lockSheet);
             log("after writeXLSwithData ..", 2);
 
         } catch (ItemMapperException ex) {
@@ -201,19 +199,20 @@ public class ExcelExport {
      * Read the first item from the item list provided and creates an
      * ExternalItem
      *
+     * @param is
      * @param itemIDs
      * @return
      * @throws APIException
      * @throws UnsupportedPrototypeException
      * @throws ItemMapperException
      */
-    public static ExternalItem getFirstItem(String itemIDs) throws APIException, UnsupportedPrototypeException, ItemMapperException {
+    public static ExternalItem getFirstItem(IntegritySession is, String itemIDs) throws APIException, UnsupportedPrototypeException, ItemMapperException {
         Command cmd = new Command(Command.IM, "issues");
         cmd.addOption(new Option("fields", "Project,ID,Summary,Assigned User,Type,State"));
         for (String id : itemIDs.split(",")) {
             cmd.addSelection(id);
         }
-        Response response = IntegritySession.execute(cmd);
+        Response response = is.execute(cmd);
         WorkItemIterator wit1 = response.getWorkItems();
         while (wit1.hasNext()) {
             WorkItem wi = wit1.next();
@@ -312,7 +311,7 @@ public class ExcelExport {
      * @param templateFile
      * @param targetfile
      */
-    static void writeXLSwithData(ExternalItem source, String templateFile, File targetfile, ExportType exportType, Boolean lock) throws MalformedURLException, IOException, ItemMapperException {
+    static void writeXLSwithData(IntegritySession is, ExternalItem source, String templateFile, File targetfile, ExportType exportType, Boolean lock) throws MalformedURLException, IOException, ItemMapperException {
         log("INFO: Exporting Integrity Data into Excel file " + targetfile + " ...", 1);
         // String[] resultFilter = {""};
         // String itemId = source.getInternalId();
@@ -323,13 +322,13 @@ public class ExcelExport {
             return;
         }
 
-        ExcelWorkbook workbook = new ExcelWorkbook(templateFile, targetfile, getProperty("headerRow"));
+        ExcelWorkbook workbook = new ExcelWorkbook(templateFile, targetfile, is.getProperty("headerRow"));
 
         // Fill all document item fields in the Excel ...
         workbook.getSheet().setDocumentValues(source);
 
         if (exportType.equals(ExportType.DefectLeakage)) {
-            workbook.getSheet().retrieveFieldNameList(Integer.parseInt(getProperty("headerRow", "8")));
+            workbook.getSheet().retrieveFieldNameList(Integer.parseInt(is.getProperty("headerRow", "8")));
         } else {
             // rename sheet name
             // String sheetName = "Doc " + itemId;
@@ -358,6 +357,12 @@ public class ExcelExport {
         }
     }
 
+    /**
+     * Just for debugging
+     *
+     * @param gatewayItems
+     * @param id
+     */
     public static void writeIIFtoDisk(List<ExternalItem> gatewayItems, int id) {
         String path = "C:\\IntegrityWordExport\\";
 

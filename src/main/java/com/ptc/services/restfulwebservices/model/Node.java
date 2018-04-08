@@ -10,12 +10,10 @@
 package com.ptc.services.restfulwebservices.model;
 
 import com.mks.api.response.WorkItem;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Locale;
+import static com.ptc.services.restfulwebservices.api.IntegritySession.fillFieldValues;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -23,46 +21,12 @@ import java.util.Locale;
  */
 public class Node {
 
-    public static String fieldList = "Category,Text,Text Key,Assigned User,Target Date,Expected Results";
+    public static String fieldList = "Category,Text,Text Key,Assigned User,Target Date,Expected Results,State";
 
-    private String category;
     private String nodeid;
     private String id;
-    private String text;
-    private String project;
-    private String action;
-    private String assignee;
-    private Date targetdate;
-    private String textkey;
-    // private final List<NameValuePair> values = new ArrayList<>();
+    private List<NameValuePair> values = new ArrayList<>();
 
-//    public List<NameValuePair> getValues() {
-//        return values;
-//    }
-
-    /**
-     * List of all Node Fields to consider
-     */
-    public enum FieldList {
-
-        Category("Category"),
-        Text("Text"),
-        TextKey("Text Key"),
-        AssignedUser("Assigned User"),
-        TargetDate("Target Date"),
-        Action("Expected Results");
-
-        private final String name;
-
-        FieldList(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    };
     /**
      * Empty Constructor
      */
@@ -74,104 +38,34 @@ public class Node {
      * Constructor to create a Node from workitem
      *
      * @param wi
+     * @throws java.lang.NoSuchMethodException
      */
-    public Node(WorkItem wi) {
-        this.nodeid = wi.getId();
+    public Node(WorkItem wi) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         this.id = wi.getId();
-        Iterator fields = wi.getFields();
-//        while (fields.hasNext()) {
-//            Field field = (Field) fields.next();
-//            values.add(new NameValuePair(field.getName(), field.getValueAsString()));
-//        }
-
-        this.category = wi.getField(FieldList.Category.toString()).getValueAsString();
-        this.text = wi.getField(FieldList.Text.toString()).getValueAsString();
-        try {
-            this.textkey = wi.getField(FieldList.TextKey.toString()).getValueAsString();
-        } catch (java.util.NoSuchElementException ex) {
-        }
-        try {
-            this.targetdate = wi.getField(FieldList.TargetDate.toString()).getDateTime();
-        } catch (java.util.NoSuchElementException ex) {
-        }
-        try {
-            this.action = wi.getField(FieldList.Action.toString()).getValueAsString();
-        } catch (java.util.NoSuchElementException ex) {
-        }        
-        // this.action = wi.getField("action").getValueAsString();
-        this.assignee = wi.getField(FieldList.AssignedUser.toString()).getValueAsString();
+        this.nodeid = wi.getId();
+        fillFieldValues(wi, values);
     }
 
-    public String getCategory() {
-        return category;
+    public List<NameValuePair> getValues() {
+        return values;
     }
 
-    public String getText() {
-        return text;
+    public void setValues(List<NameValuePair> values) {
+        this.values = values;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getProject() {
-        return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public String getAssignee() {
-        return assignee;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public void setAssignee(String assignee) {
-        this.assignee = assignee;
-    }
     public String getNodeid() {
-        return nodeid;
+        for (int i = 0; i < values.size(); i++) {
+            if (values.get(i).getName().equals("nodeid")) {
+                return values.get(i).getValue().replace("-", "").replace("undefined", "");
+            }
+        }
+        return "";
     }
 
     public void setNodeid(String id) {
-        this.nodeid = id;
+        values.add(new NameValuePair("nodeid", "String", id));
         this.id = id;
+        this.nodeid = id;
     }
-
-    public Date getTargetdate() {
-        return targetdate;
-    }
-    public void setTargetdate(String targetdate) throws ParseException {
-        if (targetdate == null || targetdate.isEmpty()) {
-            this.targetdate = null;
-        } else {
-            DateFormat format = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
-            this.targetdate = format.parse(targetdate);
-        }
-    }
-
-    public String getTextkey() {
-        return textkey;
-    }
-
-    public void setTextkey(String textkey) {
-        this.textkey = textkey;
-    }
-
-    public String getId() {
-        return id;
-    }
-    
 }

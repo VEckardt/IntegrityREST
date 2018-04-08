@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.security.PermitAll;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -37,9 +38,8 @@ public class ExcelResource {
      * Excel Service handling multiple IDs provided as query param like
      * ?id=11,12,13
      *
-     * Docu:
-     * http://resteasy.jboss.org/docs
-     * 
+     * Docu: http://resteasy.jboss.org/docs
+     *
      * Examples:
      * http://localhost:7001/IntegrityREST/excel/get?ids=620&gatewayConfig=Defect%20Leakage%20Status%20(Excel)
      * http://localhost:7001/IntegrityREST/excel/get?ids=621,620&gatewayConfig=Main%20Sub%20Issues
@@ -62,14 +62,14 @@ public class ExcelResource {
     public Response getFile(@QueryParam("ids") String itemIds,
             @QueryParam("id") String itemId,
             @QueryParam("issues") String issues,
-            @QueryParam("gatewayConfig") String gatewayConfig) {
+            @NotNull @QueryParam("gatewayConfig") String gatewayConfig) {
         try {
             // File currentDir = new File("");
             // System.out.println(currentDir.getAbsolutePath());
             itemIds = (itemIds != null && !itemIds.isEmpty()) ? itemIds : "";
             itemId = (itemId != null && !itemId.isEmpty()) ? itemId : "";
             issues = (issues != null && !issues.isEmpty()) ? issues : "";
-            gatewayConfig = (gatewayConfig != null && !gatewayConfig.isEmpty()) ? gatewayConfig : "";
+            gatewayConfig = (!gatewayConfig.isEmpty()) ? gatewayConfig : "";
 
             if (itemIds.isEmpty() && itemId.isEmpty() && issues.isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("The query parameters 'id', 'ids' and 'issues' can not be empty at the same time").build();
@@ -82,10 +82,6 @@ public class ExcelResource {
 
             ResponseBuilder response = Response.ok((Object) file);
             response.header("Content-Disposition", "attachment; filename=" + FileUtils.validFileName(gatewayConfig) + ".xlsx");
-
-//            return Response.ok(f, mt)
-//                    .header("Content-Disposition", "attachment; filename=Documentation.zip")
-//                    .build();
             return response.build();
         } catch (Exception ex) {
             Logger.getLogger(ExcelResource.class.getName()).log(Level.SEVERE, null, ex);

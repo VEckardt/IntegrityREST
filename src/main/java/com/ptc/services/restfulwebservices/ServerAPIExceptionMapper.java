@@ -7,7 +7,6 @@
  * Revision:       $Revision$
  * Last changed:   $Date$
  */
-
 package com.ptc.services.restfulwebservices;
 
 import javax.ws.rs.core.Response;
@@ -20,10 +19,11 @@ import javax.ws.rs.ext.Provider;
  */
 @Provider
 public class ServerAPIExceptionMapper implements ExceptionMapper<ServerAPIException> {
-  public Response toResponse(ServerAPIException  ex) {
-    return Response.status(404).
-      entity("Ouchhh, this item leads to following error:" + ex.getMessage()).
-      type("text/plain").
-      build();
-  }
-}   
+
+    public Response toResponse(ServerAPIException ex) {
+        return Response.status(404).
+                entity("Ouchhh, this item leads to following error:" + ex.getMessage()).
+                type("text/plain").
+                build();
+    }
+}

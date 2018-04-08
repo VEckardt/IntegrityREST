@@ -4,7 +4,7 @@
 package com.ptc.services.restfulwebservices.test;
 
 /**
- * 
+ *
  * @author veckardt
  */
 public class TestSetup {
@@ -12,6 +12,6 @@ public class TestSetup {
     public static TestResultFieldList testResultFields = new TestResultFieldList();
 
     public static void init() {
-        
+
     }
 }

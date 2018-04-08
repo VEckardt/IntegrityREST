@@ -92,7 +92,6 @@ public class TestResult implements Comparable<TestResult> {
 //            relatedItems = "";
 //        }
 //    }
-
     @Override
     public int compareTo(TestResult o) {
         int compare;

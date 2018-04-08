@@ -19,9 +19,6 @@ import com.mks.api.response.WorkItemIterator;
 import com.mks.gateway.data.ExternalItem;
 import com.mks.gateway.mapper.ItemMapperException;
 import com.ptc.services.restfulwebservices.api.IntegritySession;
-import static com.ptc.services.restfulwebservices.api.IntegritySession.execute;
-import static com.ptc.services.restfulwebservices.api.IntegritySession.getProperty;
-import static com.ptc.services.restfulwebservices.api.IntegritySession.readPickField;
 import static com.ptc.services.restfulwebservices.tools.LogAndDebug.log;
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,6 +40,7 @@ public class ReportDefectLeakage {
     private static final String printBlankNumbersAs = "0";
     private static final HashMap<String, Integer> occurenceMap = new HashMap<>();
     private static final String headerFieldPrefix = "Hdr";
+    private static IntegritySession is = null;
 
     /**
      * Generates the DefectLeakage Output (Table and Chart), based on the
@@ -54,13 +52,12 @@ public class ReportDefectLeakage {
      * @throws ItemMapperException
      * @throws java.io.IOException
      */
-    public static void handleDefectLeakage(List<ExternalItem> gatewayItems, String itemIDs) throws APIException, ItemMapperException, IOException {
+    public static void handleDefectLeakage(IntegritySession is, List<ExternalItem> gatewayItems, String itemIDs) throws APIException, ItemMapperException, IOException {
 
-        gatewayItems.add(ExcelExport.getFirstItem (itemIDs));
-        
+        gatewayItems.add(ExcelExport.getFirstItem(is, itemIDs));
+
         ExternalItem root = gatewayItems.get(0);
 
-             
         //Access the worksheet, so that we can update / modify it.
         log("Adding Headers ...", 2);
         int i = 0;
@@ -70,8 +67,8 @@ public class ReportDefectLeakage {
             }
         }
 
-        pickFieldHName = getProperty(pickFieldHName, "Test Level");
-        pickFieldVName = getProperty(pickFieldVName, "Originated In");
+        pickFieldHName = is.getProperty(pickFieldHName, "Test Level");
+        pickFieldVName = is.getProperty(pickFieldVName, "Originated In");
 
         // default query name
         String defectLeakageQueryName = "Defect Leakage Status";
@@ -81,16 +78,16 @@ public class ReportDefectLeakage {
         try {
             Command cmd = new Command(Command.IM, "viewquery");
             cmd.addSelection(defectLeakageQueryName);
-            IntegritySession.execute(cmd);
+            is.execute(cmd);
         } catch (APIException ex) {
             // if not, set it to null to prevent from using it
             defectLeakageQueryName = "";
         }
 
         // Get the horizontal Pick Field content
-        readPickField(pickFieldHName, fieldMapH, "picks", "label");
+        is.readPickField(pickFieldHName, fieldMapH, "picks", "label");
         // Get the vertical Pick Field content
-        readPickField(pickFieldVName, fieldMapV, "picks", "label");
+        is.readPickField(pickFieldVName, fieldMapV, "picks", "label");
 
         // Count the Defect data
         Command cmd = new Command(Command.IM, "issues");
@@ -102,7 +99,7 @@ public class ReportDefectLeakage {
             cmd.addOption(new Option("queryDefinition", "((field[\"Type\"]=Defect)" + projectFilter));
         }
         cmd.addOption(new Option("fields", pickFieldHName + "," + pickFieldVName));
-        Response response = execute(cmd);
+        Response response = is.execute(cmd);
         WorkItemIterator wit = response.getWorkItems();
         while (wit.hasNext()) {
             WorkItem wi = wit.next();

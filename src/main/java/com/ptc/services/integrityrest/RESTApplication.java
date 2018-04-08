@@ -11,6 +11,7 @@ package com.ptc.services.integrityrest;
 
 /**
  * Base Class, must exist for the Integrity JBoss version
+ *
  * @author veckardt
  */
 import javax.ws.rs.ApplicationPath;

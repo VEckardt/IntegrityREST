@@ -42,9 +42,9 @@ public class SecurityInterceptor implements javax.ws.rs.container.ContainerReque
 
     private static final String AUTHORIZATION_PROPERTY = "Authorization";
     private static final String AUTHENTICATION_SCHEME = "Basic";
-    private static final ServerResponse ACCESS_DENIED = new ServerResponse("Access denied for this resource", 401, new Headers<>());
-    private static final ServerResponse ACCESS_DENIED_EMPTY = new ServerResponse("Access denied for empty resource", 402, new Headers<>());
-    private static final ServerResponse ACCESS_FORBIDDEN = new ServerResponse("Nobody can access this resource", 403, new Headers<>());
+    // private static final ServerResponse ACCESS_DENIED = new ServerResponse("Access denied for this resource", 401, new Headers<>());
+    private static final ServerResponse ACCESS_DENIED_EMPTY = new ServerResponse("For this resource an " + AUTHORIZATION_PROPERTY + " is required", 402, new Headers<>());
+    private static final ServerResponse ACCESS_FORBIDDEN = new ServerResponse("For this resource access is forbidden", 403, new Headers<>());
     private static final ServerResponse DECODE_ERROR = new ServerResponse("Can not decode to Base64", 488, new Headers<>());
 
     public static String username = "is.properties";
@@ -55,7 +55,7 @@ public class SecurityInterceptor implements javax.ws.rs.container.ContainerReque
         ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext.getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
         Method method = methodInvoker.getMethod();
 
-        System.out.println("REST-API: Called Java Method: " + method.getName() + ", mode=" + method.isAnnotationPresent(PermitAll.class));
+        System.out.println("REST-API: Called Java Method '" + method.getName() + "', public=" + method.isAnnotationPresent(PermitAll.class));
 
         //Access allowed for all
         if (!method.isAnnotationPresent(PermitAll.class)) {
@@ -81,7 +81,7 @@ public class SecurityInterceptor implements javax.ws.rs.container.ContainerReque
             final String encodedUserPassword = authorization.get(0).replaceFirst(AUTHENTICATION_SCHEME + " ", "");
 
             //Decode username and password
-            String usernameAndPassword = null;
+            String usernameAndPassword;
             try {
                 usernameAndPassword = new String(Base64.decode(encodedUserPassword));
             } catch (IOException e) {
@@ -111,7 +111,7 @@ public class SecurityInterceptor implements javax.ws.rs.container.ContainerReque
                     return;
                 }
             } else {
-                System.out.println("isAnnotationPresent: no");
+                System.out.println("REST-API: isAnnotationPresent: no");
             }
         }
     }

@@ -6,6 +6,7 @@
         <param-name>resteasy.scan</param-name>
         <param-value>true</param-value>
     </context-param>
+    
     <!-- this need same with resteasy servlet url-pattern -->
     <!-- context-param>
         <param-name>resteasy.servlet.mapping.prefix</param-name>
@@ -13,7 +14,6 @@
     </context-param-->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
-        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
     <listener>
         <listener-class>
@@ -30,14 +30,6 @@
             <param-value>com.ptc.services.integrityrest.RESTApplication</param-value>
         </init-param>
     </servlet>
-    <servlet>
-        <servlet-name>NewServlet</servlet-name>
-        <servlet-class>com.ptc.services.integrityrest.NewServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>NewServlet</servlet-name>
-        <url-pattern>/NewServlet</url-pattern>
-    </servlet-mapping>    
     <servlet-mapping>
         <servlet-name>Resteasy</servlet-name>
         <url-pattern>/</url-pattern>

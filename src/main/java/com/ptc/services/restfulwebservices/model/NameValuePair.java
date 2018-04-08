@@ -17,16 +17,18 @@ public class NameValuePair {
 
     private String name;
     private String value;
-    
+    private String type;
+
     /**
      * Empty Constructor
      */
     public NameValuePair() {
 
-    }    
+    }
 
-    public NameValuePair(String name, String value) {
+    public NameValuePair(String name, String type, String value) {
         this.name = name;
+        this.type = type;
         this.value = value;
     }
 
@@ -45,4 +47,17 @@ public class NameValuePair {
     public void setValue(String value) {
         this.value = value;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Boolean hasValue() {
+        return this.value != null && !this.value.isEmpty();
+    }
+
 }

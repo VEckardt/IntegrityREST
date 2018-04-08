@@ -9,11 +9,13 @@
  */
 package com.ptc.services.restfulwebservices.api;
 
+import com.ptc.services.restfulwebservices.Constants;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import static java.lang.System.out;
 import java.util.Properties;
+// import com.ptc.services.servlet.Constants;
 
 /**
  *
@@ -21,15 +23,14 @@ import java.util.Properties;
  */
 public class ConnectionDetails {
 
-    private String user = "administrator";
-    private String password = "password";
-    private String port = "7001";
+    private String user = "";
+    private String password = "";
+    private String port = "";
     private String hostname = "localhost";
 
     /**
-     * @author Crunchify.com
+     * @author veckardt
      * @throws java.io.IOException
-     *
      */
     public ConnectionDetails() throws IOException {
 
@@ -37,7 +38,7 @@ public class ConnectionDetails {
 
         try {
             Properties prop = new Properties();
-            String propFileName = "../config/properties/is.properties";
+            String propFileName = Constants.serverGatewayPropertiesFileName;
 
             inputStream = new FileInputStream(propFileName);
             prop.load(inputStream);
@@ -60,9 +61,10 @@ public class ConnectionDetails {
     }
 
     /**
-     * @author Crunchify.com
+     * @author veckardt
+     * @param username
+     * @param password
      * @throws java.io.IOException
-     *
      */
     public ConnectionDetails(String username, String password) throws IOException {
 
@@ -109,6 +111,11 @@ public class ConnectionDetails {
 
     public String getLoginInfo() {
         return ("REST-API: Logging in " + hostname + ":" + port + " with " + user + " ..");
+    }
+
+    @Override
+    public String toString() {
+        return ("REST-API: Logging in " + hostname + ":" + port + " with " + user + "/" + password + " ..");
     }
 
 }

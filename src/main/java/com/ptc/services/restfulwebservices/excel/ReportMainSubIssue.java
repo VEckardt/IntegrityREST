@@ -28,9 +28,12 @@ import java.util.List;
  * @author veckardt
  */
 public class ReportMainSubIssue {
+    
+    private static IntegritySession is = null;
 
-    public static void handleMainSubIssues(List<ExternalItem> gatewayItems, String itemIDs, ItemMapperConfig itemMapperConfig) throws Exception {
-
+    public static void handleMainSubIssues(IntegritySession is, List<ExternalItem> gatewayItems, String itemIDs, ItemMapperConfig itemMapperConfig) throws Exception {
+        ReportMainSubIssue.is = is;
+        
         // List<ExternalItem> itemList = new ArrayList<>();
         ExternalItem root = new ExternalItem("ISSUE", "100");
         root.add("Summary", itemMapperConfig.getConfigName());
@@ -42,7 +45,7 @@ public class ReportMainSubIssue {
         for (String id : itemIDs.split(",")) {
             cmd.addSelection(id);
         }
-        Response response = IntegritySession.execute(cmd);
+        Response response = is.execute(cmd);
         WorkItem wiLevel1 = null;
         ExternalItem eiLevel1 = null;
         WorkItem wiLevel2 = null;

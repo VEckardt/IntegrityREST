@@ -24,7 +24,6 @@ public class ServerAPIException extends WebApplicationException {
 //  public ServerAPIException() {
 //    super(Responses.notFound().build());
 //  }
-
     /**
      * Create a HTTP 404 (Not Found) exception.
      *

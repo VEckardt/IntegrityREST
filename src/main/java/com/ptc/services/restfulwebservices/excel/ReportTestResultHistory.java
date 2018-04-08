@@ -20,9 +20,7 @@ import com.mks.gateway.data.ExternalItem;
 import com.mks.gateway.mapper.ItemMapperException;
 import com.mks.gateway.mapper.UnsupportedPrototypeException;
 import com.ptc.services.restfulwebservices.api.IntegritySession;
-import static com.ptc.services.restfulwebservices.api.IntegritySession.execute;
 import com.ptc.services.restfulwebservices.test.ResultCounter;
-import static com.ptc.services.restfulwebservices.tools.LogAndDebug.log;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,8 +31,11 @@ import java.util.TreeMap;
  * @author veckardt
  */
 public class ReportTestResultHistory {
+    
+    static IntegritySession is = null;
 
-    public static void initDoc(ExternalItem docItem, String docID) throws APIException, UnsupportedPrototypeException, ItemMapperException {
+    public static void handleTestResultHistory(IntegritySession is, ExternalItem docItem, String docID) throws APIException, UnsupportedPrototypeException, ItemMapperException, IOException {
+        ReportTestResultHistory.is = is;
         Command cmd = new Command(Command.IM, "viewsegment");
         // cmd.addOption(new Option("expandRelationshipFields", "contains"));
         cmd.addOption(new Option("fields", "Section,Text,ID,Category,Type,State,Last Result"));
@@ -42,7 +43,7 @@ public class ReportTestResultHistory {
         // for (String id : itemIDs.split(",")) {
         cmd.addSelection(docID);
         // }
-        Response response = IntegritySession.execute(cmd);
+        Response response = is.execute(cmd);
         WorkItemIterator wit = response.getWorkItems();
         wit.next();
         while (wit.hasNext()) {
@@ -56,13 +57,15 @@ public class ReportTestResultHistory {
             }
             docItem.addChild(ei);
         }
+        
+        addResultHistory (docItem);
     }
 
     /**
      *
      * @param docItem
      */
-    public static void handleTestResultHistory(ExternalItem docItem) throws APIException, UnsupportedPrototypeException, ItemMapperException, IOException {
+    public static void addResultHistory(ExternalItem docItem) throws APIException, UnsupportedPrototypeException, ItemMapperException, IOException {
         // log("In IterateChilds ...", 1);
         // does this item have any children?
         if (!docItem.getChildren().isEmpty()) {
@@ -75,7 +78,7 @@ public class ReportTestResultHistory {
                     Command cmd = new Command(Command.TM, "results");
                     cmd.addOption(new Option("caseID", currentChild.getExternalId()));
                     cmd.addOption(new Option("sortAscending"));
-                    Response response = execute(cmd);
+                    Response response = is.execute(cmd);
                     WorkItemIterator wit = response.getWorkItems();
 
                     ResultCounter rc = new ResultCounter();
@@ -89,7 +92,7 @@ public class ReportTestResultHistory {
                     // Last Executed
                 }
                 // currentChild.add(pickFieldPrefix + "Count", fieldMapH.keySet().size());
-                handleTestResultHistory(currentChild);
+                addResultHistory(currentChild);
             }
         } else {
             // log("no childs.", 2);
@@ -121,7 +124,7 @@ public class ReportTestResultHistory {
             Command cmd = new Command(Command.IM, "types");
             cmd.addOption(new Option("fields", "TestRole"));
             cmd.addSelection(type);
-            Response response = execute(cmd);
+            Response response = is.execute(cmd);
             // ResponseUtil.printResponse(response, 1, System.out);
             WorkItem wi = response.getWorkItem(type);
             String testRole = wi.getField("testRole").getValueAsString();

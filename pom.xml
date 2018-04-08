@@ -10,6 +10,30 @@
     <name>IntegrityREST</name>
     <url>http://maven.apache.org</url>
 
+    <repositories>
+        <repository>
+            <id>lyo-releases</id>
+            <name>Eclipse Lyo Releases</name>
+            <url>https://repo.eclipse.org/content/repositories/lyo-releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>lyo-snapshots</id>
+            <name>Eclipse Lyo Snapshots</name>
+            <url>https://repo.eclipse.org/content/repositories/lyo-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>oauth</id>
+            <name>OAuth Repository</name>
+            <url>http://oauth.googlecode.com/svn/code/maven</url>
+        </repository>        
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
@@ -36,12 +60,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>mks</groupId>
-            <artifactId>mksapi</artifactId>
-            <version>10.9</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>3.14</version>
@@ -58,13 +76,6 @@
             <artifactId>unbescape</artifactId>
             <version>1.1.4.RELEASE</version>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <type>jar</type>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -91,10 +102,47 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>mksapi</groupId>
-            <artifactId>mksapi</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.6.3</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>8.1.15.v20140411</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.1.0.Final</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.mks.api</groupId>
+            <artifactId>mksapi-jar</artifactId>
+            <version>4.13.5479</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>mks</groupId>
+            <artifactId>mks</artifactId>
             <version>10.9</version>
-            <scope>test</scope>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>ws-commons-util</groupId>
+            <artifactId>ws-commons-util</artifactId>
+            <version>1.0.2</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 
@@ -115,8 +163,8 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <warName>${name}</warName>
-                    <outputDirectory>D:\IntegrityProgram\IntegrityServer10.9\server\mks\deploy</outputDirectory>
+                    <warName>${project.name}</warName>
+                    <outputDirectory>C:\Integrity\ILMServer11\server\mks\deploy</outputDirectory>
                 </configuration>
             </plugin>
             <!--            <plugin>
@@ -137,4 +185,6 @@
             </plugin>          -->
         </plugins>
     </build>
+
+
 </project>

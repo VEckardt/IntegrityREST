@@ -51,7 +51,6 @@ public class ExcelWorkbook {
     public XSSFWorkbook getWorkbook() {
         return workbook;
     }
-    
 
     public ExcelWorkbook(String templateFile, File targetfile, String headerRow) {
         if (templateFile.toLowerCase().startsWith("http")) {

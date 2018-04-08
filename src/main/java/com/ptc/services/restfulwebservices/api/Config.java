@@ -13,10 +13,8 @@ import java.util.Locale;
  * @author veckardt
  */
 public class Config {
-    
-    // http://wayback.archive.org/web/20141015235927/http://blog.ej-technologies.com/2011/12/default-locale-changes-in-java-7.html
-    
 
+    // http://wayback.archive.org/web/20141015235927/http://blog.ej-technologies.com/2011/12/default-locale-changes-in-java-7.html
     public static Locale locale = Locale.getDefault(); // null; // Locale.getDefault();
 
     public static DateFormat dfTime = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.getDefault());
@@ -25,6 +23,7 @@ public class Config {
     public static DateFormat dfDayTimeShort = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault());
     public static DateFormat dfDayTimeShortUS = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.US);
 
+    public static final String defaultAppDateFormat = "dd-MM-yyyy";
 
     public static Locale getLocale() {
         if (locale == null) {

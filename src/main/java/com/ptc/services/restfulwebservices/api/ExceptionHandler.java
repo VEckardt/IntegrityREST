@@ -27,7 +27,7 @@ public class ExceptionHandler {
         command = response.getCommandString();
         message = ex.getMessage();
         exitCode = -1; // Integer.parseInt(ex.getExceptionId());
-                       // "im.NO_COMPUTED_FIELD"
+        // "im.NO_COMPUTED_FIELD"
     }
 
     /**
